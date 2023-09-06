@@ -1,18 +1,109 @@
+import pandas as pd
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+import timeit
+import seaborn as sns
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
+
+def dcshape(X_train, X_test, y_train, y_test):
+    print("The rows and column in X_train is :t", X_train.shape)
+    print("The rows and column of X_test is:t", X_test.shape)
+    print("The rows and column of y_train is:t", y_train.shape)
+    print("The rows and column of y_test is:t", y_test.shape)
+    
+
+def dcsample(df, rw=10):
+    import pandas as pd
+    
+    if rw is None:
+        rw = 10
+    
+    return df.sample(rw)
+
+
+
+def dcbar_plot_with_values(x_values, y_values, xlabel='', ylabel='', title=''):
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    
+    # Create the bar plot
+    bars = ax.bar(x_values, y_values)
+    
+    # Add values on top of the bars
+    for bar in bars:
+        yval = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, yval + 0.05, round(yval, 2), ha='center', va='bottom', fontsize=10)
+    
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    
+    plt.tight_layout()
+    plt.show()
+
+
+
+def DC_describe_categorical(X):
+    """
+    Just like .decribe(), but returns the results for categorical variables only.
+    """
+    from IPython.display import display, HTML
+    display(HTML(X[X.columns[X.dtypes == "object"]].describe().to_html()))
+
+def DC_checkemail(email):
+    
+	# pass the regular expression
+	# and the string into the fullmatch() method
+	if(re.fullmatch(regex, email)):
+		print("Valid Email")
+
+	else:
+		print("Invalid Email")
+
+
+def DC_cfplot(a, b, color, title):
+    from sklearn.metrics import confusion_matrix
+    import seaborn as sns
+    import numpy as np
+    cf_matrix = confusion_matrix(a, b)
+    group_names = ['True Negative', 'False Positive', 'False Negative', 'True Positive']
+    group_counts = ["{0:0.0f}".format(value) for value in cf_matrix.flatten()]
+    group_percentages = ["{0:.2%}".format(value) for value in cf_matrix.flatten()/np.sum(cf_matrix)]
+    labels = [f"{v1}\n{v2}\n{v3}" for v1,v2,v3 in zip(group_names, group_counts, group_percentages)]
+    labels = np.array(labels).reshape(2,2)
+    ax = sns.heatmap(cf_matrix, annot=labels, fmt='', cmap = color)
+    ax.set_title(title+"\n\n");
+    ax.set_xlabel('\nPredicted Values')
+    ax.set_ylabel('Actual Values');
+    plt.show()
+    
+def DC_plot_roc_curve(fpr, tpr, label = None, rocscore = None):
+    if rocscore is None:
+        r = ""
+    else:
+        r = str(rocscore)
+    plt.plot(fpr, tpr, linewidth = 2, label = label)
+    plt.plot([0,1], [0,1], 'k--')
+    plt.axis([0,1,0,1])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(" AUC Plot ")
+    plt.show()
+
+
+
+
 # -*- coding: utf-8 -*-
 """
 Created on Sat Jul 25 10:29:02 2020
 
 @author: Jatin
 """
-
-import timeit
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
-
 
 
 
