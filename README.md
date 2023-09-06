@@ -1,4 +1,4 @@
-# dcmlpack
+# dcpkg
 
 The intention to build this package is to make work in python easy by using packages which will help to reduce the line of codes and to customize all codes that will be written.
 
