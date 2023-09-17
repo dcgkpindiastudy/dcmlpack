@@ -324,3 +324,20 @@ def DC_AutoEDA(df,labels,target_variable_name,
     
     return df_wo_null,df_wo_null.select_dtypes(exclude=['object']).columns.tolist(),df_wo_null.select_dtypes(include=['object']).columns.tolist()
 
+
+
+
+def dc_calculate_months_difference(x, startdate):
+    """Need to pass the datetime value and startdate as string in format 'YYYY-mm-dd'"""
+    """ This will calculate the date difference in months. Uses relativedelta which takes care of different dates
+        in different months.    
+    """
+    from dateutil.relativedelta import relativedelta
+    d = startdate
+    try:
+        diff = relativedelta(pd.to_datetime(d), x)
+        months_diff = diff.years * 12 + diff.months
+        return months_diff
+    except Exception as e:
+        return None  # Handle cases where the date conversion or calculation fails
+
