@@ -388,3 +388,39 @@ def dc_woe_discrete(df, discrete_variabe_name, good_bad_variable_df):
     return df
 # Here we combine all of the operations above in a function.
 # The function takes 3 arguments: a dataframe, a string, and a dataframe. The function returns a dataframe as a result.
+
+
+def dc_plot_by_woe(df_WoE, rotation_of_x_axis_labels=0):
+    """_summary_# Below we define a function that takes 2 arguments: a dataframe and a number.
+                # The number parameter has a default value of 0.
+                # This means that if we call the function and omit the number parameter, it will be executed with it having a value of 0.
+                # The function displays a graph.
+
+    Args:
+        df_WoE (_type_): _series_ DataFrame Weight of Evidence column
+        rotation_of_x_axis_labels (int, optional): _description_. Defaults to 0.
+    """
+    x = np.array(df_WoE.iloc[:, 0].apply(str))
+    # Turns the values of the column with index 0 to strings, makes an array from these strings, and passes it to variable x.
+    y = df_WoE['WoE']
+    # Selects a column with label 'WoE' and passes it to variable y.
+    
+    plt.figure(figsize=(18, 6))
+    # Sets the graph size to width 18 x height 6.
+    plt.plot(x, y, marker='o', linestyle='--', color='k')
+    # Plots the datapoints with coordiantes variable x on the x-axis and variable y on the y-axis.
+    # Sets the marker for each datapoint to a circle, the style line between the points to dashed, and the color to black.
+    plt.xlabel(df_WoE.columns[0])
+    # Names the x-axis with the name of the column with index 0.
+    plt.ylabel('Weight of Evidence')
+    # Names the y-axis 'Weight of Evidence'.
+    plt.title('Weight of Evidence by ' + df_WoE.columns[0])
+    # Names the grapth 'Weight of Evidence by ' the name of the column with index 0.
+    
+    for i, j in zip(x, y):
+        plt.annotate(f'{j:.2f}', (i, j), textcoords='offset points', xytext=(0, 10), ha='center')
+    # put the values of weight of evidence against each data coordinates
+    
+    plt.xticks(rotation=rotation_of_x_axis_labels)
+    # Rotates the labels of the x-axis a predefined number of degrees.
+    plt.show()
