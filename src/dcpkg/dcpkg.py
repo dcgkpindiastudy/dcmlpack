@@ -353,3 +353,38 @@ def dcvaluecountbarh(d):
 
     # Show the plot
     plt.show()
+    
+
+# WoE function for discrete unordered variables
+def dc_woe_discrete(df, discrete_variabe_name, good_bad_variable_df):
+    """
+    
+
+    Args:
+        df (_type_): _Entire Data Frame_
+        discrete_variabe_name (_type_): _Independent Variable name from Data Frame_
+        good_bad_variable_df (_type_): _Dependent Variable name from Data Frame_
+
+    Returns:
+        _type_: _Returns Dataframe with weight of evidence and Information value along with other details_
+    """
+    df = pd.concat([df[discrete_variabe_name], good_bad_variable_df], axis = 1)
+    df = pd.concat([df.groupby(df.columns.values[0], as_index = False)[df.columns.values[1]].count(),
+                    df.groupby(df.columns.values[0], as_index = False)[df.columns.values[1]].mean()], axis = 1)
+    df = df.iloc[:, [0, 1, 3]]
+    df.columns = [df.columns.values[0], 'n_obs', 'prop_good']
+    df['prop_n_obs'] = df['n_obs'] / df['n_obs'].sum()
+    df['n_good'] = df['prop_good'] * df['n_obs']
+    df['n_bad'] = (1 - df['prop_good']) * df['n_obs']
+    df['prop_n_good'] = df['n_good'] / df['n_good'].sum()
+    df['prop_n_bad'] = df['n_bad'] / df['n_bad'].sum()
+    df['WoE'] = np.log(df['prop_n_good'] / df['prop_n_bad'])
+    df = df.sort_values(['WoE'])
+    df = df.reset_index(drop = True)
+    df['diff_prop_good'] = df['prop_good'].diff().abs()
+    df['diff_WoE'] = df['WoE'].diff().abs()
+    df['IV'] = (df['prop_n_good'] - df['prop_n_bad']) * df['WoE']
+    df['IV'] = df['IV'].sum()
+    return df
+# Here we combine all of the operations above in a function.
+# The function takes 3 arguments: a dataframe, a string, and a dataframe. The function returns a dataframe as a result.
