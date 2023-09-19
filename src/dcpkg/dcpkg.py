@@ -341,3 +341,15 @@ def dc_calculate_months_difference(x, startdate):
     except Exception as e:
         return None  # Handle cases where the date conversion or calculation fails
 
+def dcvaluecountbarh(d):
+    """Pass on the variable from your dataframe for value count plot with horizontal display
+    dcvaluecountbarh(df["XYZ"])
+    """
+    import matplotlib.pyplot as plt  
+    ax = d.value_counts().plot(kind='barh')
+    # Annotate each bar with its value
+    for p in ax.patches:
+        ax.annotate(str(p.get_width()), (p.get_x() + p.get_width(), p.get_y()), xytext=(5, 10), textcoords='offset points')
+
+    # Show the plot
+    plt.show()
