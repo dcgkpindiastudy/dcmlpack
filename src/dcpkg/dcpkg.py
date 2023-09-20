@@ -424,3 +424,45 @@ def dc_plot_by_woe(df_WoE, rotation_of_x_axis_labels=0):
     plt.xticks(rotation=rotation_of_x_axis_labels)
     # Rotates the labels of the x-axis a predefined number of degrees.
     plt.show()
+    
+# WoE function for ordered discrete and continuous variables
+def dc_woe_ordered_continuous(df, OC_variabe_name, good_bad_variable_df):
+    """Calculate Weight of Evidence (WoE) for ordered discrete and continuous variables.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame containing the variable of interest and a good/bad indicator.
+    - OC_variabe_name (str): The name of the ordered discrete or continuous variable.
+    - good_bad_variable_df (DataFrame): A DataFrame containing the good/bad indicator variable or target variable.
+
+    Returns:
+    - DataFrame: A DataFrame containing WoE, IV, and other statistics for the variable.
+
+    This function calculates WoE and Information Value (IV) for an ordered discrete or continuous variable.
+    It groups the data by the specified variable, calculates various statistics, and returns the results.
+
+    Example:
+    >>> df = pd.DataFrame({'Age': [25, 35, 45, 30, 40],
+    ...                    'Target': [0, 1, 0, 1, 0]})
+    >>> good_bad_variable_df = df[['Target']]
+    >>> result = woe_ordered_continuous(df, 'Age', good_bad_variable_df)
+    >>> print(result)
+    """
+    df = pd.concat([df[OC_variabe_name], good_bad_variable_df], axis = 1)
+    df = pd.concat([df.groupby(df.columns.values[0], as_index = False)[df.columns.values[1]].count(),
+                    df.groupby(df.columns.values[0], as_index = False)[df.columns.values[1]].mean()], axis = 1)
+    df = df.iloc[:, [0, 1, 3]]
+    df.columns = [df.columns.values[0], 'n_obs', 'prop_good']
+    df['prop_n_obs'] = df['n_obs'] / df['n_obs'].sum()
+    df['n_good'] = df['prop_good'] * df['n_obs']
+    df['n_bad'] = (1 - df['prop_good']) * df['n_obs']
+    df['prop_n_good'] = df['n_good'] / df['n_good'].sum()
+    df['prop_n_bad'] = df['n_bad'] / df['n_bad'].sum()
+    df['WoE'] = np.log(df['prop_n_good'] / df['prop_n_bad'])
+    df['diff_prop_good'] = df['prop_good'].diff().abs()
+    df['diff_WoE'] = df['WoE'].diff().abs()
+    df['IV'] = (df['prop_n_good'] - df['prop_n_bad']) * df['WoE']
+    df['IV'] = df['IV'].sum()
+    return df
+# Here we define a function similar to the one above, ...
+# ... with one slight difference: we order the results by the values of a different column.
+# The function takes 3 arguments: a dataframe, a string, and a dataframe. The function returns a dataframe as a result.
