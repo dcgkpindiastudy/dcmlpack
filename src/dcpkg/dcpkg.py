@@ -391,14 +391,20 @@ def dc_woe_discrete(df, discrete_variabe_name, good_bad_variable_df):
 
 
 def dc_plot_by_woe(df_WoE, rotation_of_x_axis_labels=0):
-    """_summary_# Below we define a function that takes 2 arguments: a dataframe and a number.
-                # The number parameter has a default value of 0.
-                # This means that if we call the function and omit the number parameter, it will be executed with it having a value of 0.
-                # The function displays a graph.
+    """
+    Plot Weight of Evidence (WoE) for a DataFrame.
 
-    Args:
-        df_WoE (_type_): _series_ DataFrame Weight of Evidence column
-        rotation_of_x_axis_labels (int, optional): _description_. Defaults to 0.
+    Parameters:
+    - df_WoE (DataFrame): The input DataFrame containing WoE values.
+    - rotation_of_x_axis_labels (int, optional): Rotation angle for x-axis labels (default: 0).
+
+    This function plots the Weight of Evidence (WoE) values from a DataFrame and annotates the values
+    on the plot. It is useful for visualizing the relationship between a variable and its WoE values.
+
+    Example:
+    >>> df = pd.DataFrame({'Category': ['A', 'B', 'C', 'D'], 'WoE': [0.1, -0.2, 0.3, -0.4]})
+    >>> plot_by_woe(df, rotation_of_x_axis_labels=45)
+    
     """
     x = np.array(df_WoE.iloc[:, 0].apply(str))
     # Turns the values of the column with index 0 to strings, makes an array from these strings, and passes it to variable x.
