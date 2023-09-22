@@ -472,3 +472,85 @@ def dc_woe_ordered_continuous(df, OC_variabe_name, good_bad_variable_df):
 # Here we define a function similar to the one above, ...
 # ... with one slight difference: we order the results by the values of a different column.
 # The function takes 3 arguments: a dataframe, a string, and a dataframe. The function returns a dataframe as a result.
+
+
+
+
+class DC_LogisticRegression_with_p_values:
+    """
+     A custom logistic regression model with p-value calculation for coefficient significance.
+
+    This class extends the functionality of scikit-learn's LogisticRegression model to calculate
+    p-values for each coefficient in the logistic regression model.
+
+    Parameters:
+    *args, **kwargs: Additional arguments and keyword arguments passed to the LogisticRegression model.
+
+    Attributes:
+    model: LogisticRegression
+        The scikit-learn LogisticRegression model fitted to the data.
+    coef_: array, shape (1, n_features)
+        Coefficients of the logistic regression model.
+    intercept_: array, shape (1,)
+        Intercept (bias) of the logistic regression model.
+    p_values: list
+        Two-tailed p-values corresponding to the significance of each coefficient in the model.
+
+    Methods:
+    fit(X, y):
+        Fit the logistic regression model to the input data.
+
+    Note:
+    The p-values are calculated using the Cramer-Rao lower bound method to estimate the standard errors
+    of the coefficients and then computing z-scores for hypothesis testing.
+
+    Reference:
+    https://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93Rao_bound
+    
+    Example:
+    
+    reg2 = LogisticRegression_with_p_values()
+    reg2.fit(inputs_train, loan_data_targets_train)
+    
+    feature_name = inputs_train.columns.values
+    
+    # Summary data.
+    summary_table = pd.DataFrame(columns = ['Feature name'], data = feature_name)
+    summary_table['Coefficients'] = np.transpose(reg2.coef_)
+    summary_table.index = summary_table.index + 1
+    summary_table.loc[0] = ['Intercept', reg2.intercept_[0]]
+    summary_table = summary_table.sort_index()
+    summary_table
+    
+    # We add the 'p_values' here, just as we did before.
+    p_values = reg2.p_values
+    p_values = np.append(np.nan,np.array(p_values))
+    summary_table['p_values'] = p_values
+    summary_table
+    # Here we get the results for our final PD model.
+    
+    
+    """
+    from sklearn import linear_model
+    import scipy.stats as stat
+    
+    def __init__(self,*args,**kwargs):#,**kwargs):
+        self.model = linear_model.LogisticRegression(*args,**kwargs)#,**args)
+
+    def fit(self,X,y):
+        self.model.fit(X,y)
+        
+        #### Get p-values for the fitted model ####
+        denom = (2.0 * (1.0 + np.cosh(self.model.decision_function(X))))
+        denom = np.tile(denom,(X.shape[1],1)).T
+        F_ij = np.dot((X.astype(np.float64) / denom).T, X.astype(np.float64))  # Ensure X is of dtype float64
+        Cramer_Rao = np.linalg.inv(F_ij)
+        # F_ij = np.dot((X / denom).T,X) ## Fisher Information Matrix
+        # Cramer_Rao = np.linalg.inv(F_ij) ## Inverse Information Matrix
+        sigma_estimates = np.sqrt(np.diagonal(Cramer_Rao))
+        z_scores = self.model.coef_[0] / sigma_estimates # z-score for eaach model coefficient
+        p_values = [stat.norm.sf(abs(x)) * 2 for x in z_scores] ### two tailed test for p-values
+        
+        self.coef_ = self.model.coef_
+        self.intercept_ = self.model.intercept_
+        self.p_values = p_values
