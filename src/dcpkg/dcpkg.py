@@ -670,3 +670,63 @@ class DC_LogisticRegression_with_p_values:
         self.coef_ = self.model.coef_
         self.intercept_ = self.model.intercept_
         self.p_values = p_values
+        
+def DC_calculate_ks(y_true, y_prob):
+    """
+    Calculate the Kolmogorov-Smirnov (KS) statistic.
+
+    Parameters:
+    y_true: array-like, shape (n_samples,)
+        True binary labels (0 or 1).
+    y_prob: array-like, shape (n_samples,)
+        Predicted probabilities for the positive class.
+
+    Returns:
+    ks_statistic: float
+        KS statistic value.
+    ks_threshold: float
+        Threshold where the KS statistic is achieved.
+    """
+    fpr, tpr, thresholds = roc_curve(y_true, y_prob)
+    ks_values = np.abs(tpr - fpr)
+    ks_index = np.argmax(ks_values)
+    ks_statistic = ks_values[ks_index]
+    ks_threshold = thresholds[ks_index]
+
+    return print(f'KS Statistic: {ks_statistic:.4f} at Threshold={ks_threshold:.4f}')
+
+def DC_plot_ks_curve(y_true, y_prob):
+    """
+    Plot the KS curve for a binary classification model.
+
+    Parameters:
+    y_true: array-like, shape (n_samples,)
+        True binary labels (0 or 1).
+    y_prob: array-like, shape (n_samples,)
+        Predicted probabilities for the positive class.
+
+    Returns:
+    None
+    """
+    fpr, tpr, thresholds = roc_curve(y_true, y_prob)
+
+    ks_statistic, ks_threshold = calculate_ks(y_true, y_prob)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(thresholds, tpr, label='True Positive Rate (Sensitivity)')
+    plt.plot(thresholds, fpr, label='False Positive Rate')
+    plt.plot(ks_threshold, tpr[np.argmax(tpr - fpr)], 'ro', label=f'Max KS (Threshold={ks_threshold:.3f})')
+    plt.xlabel('Threshold')
+    plt.ylabel('Rate')
+    plt.title('KS Curve')
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+    # Example usage:
+    # Replace y_true and y_prob with your actual labels and predicted probabilities
+    # y_true = ...
+    # y_prob = ...
+    # ks_statistic, ks_threshold = calculate_ks(y_true, y_prob)
+    # print(f'KS Statistic: {ks_statistic:.4f} at Threshold={ks_threshold:.4f}')
+    # plot_ks_curve(y_true, y_prob)
