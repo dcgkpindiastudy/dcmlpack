@@ -67,6 +67,25 @@ def DC_checkemail(email):
 
 
 def DC_cfplot(a, b, color, title):
+    """
+    Plot a confusion matrix heatmap with annotations.
+
+    Parameters:
+    a : array-like, shape (n_samples,)
+        True binary labels.
+
+    b : array-like, shape (n_samples,)
+        Predicted binary labels.
+
+    color : str or Colormap, optional
+        Colormap for the heatmap.
+
+    title : str
+        Title for the confusion matrix plot.
+
+    Returns:
+    None
+    """
     from sklearn.metrics import confusion_matrix
     import seaborn as sns
     import numpy as np
@@ -83,6 +102,26 @@ def DC_cfplot(a, b, color, title):
     plt.show()
     
 def DC_plot_roc_curve(fpr, tpr, label = None, rocscore = None):
+    """
+    Plot the Receiver Operating Characteristic (ROC) curve.
+
+    Parameters:
+    fpr : array-like
+        False Positive Rate values.
+
+    tpr : array-like
+        True Positive Rate values.
+
+    label : str, optional
+        Label for the ROC curve.
+
+    rocscore : float, optional
+        ROC AUC score to display in the plot.
+
+    Returns:
+    None
+    """
+    
     if rocscore is None:
         r = ""
     else:
@@ -108,6 +147,23 @@ Created on Sat Jul 25 10:29:02 2020
 
 
 def DC_numericalCategoricalSplit(df):
+    """
+    Split a DataFrame into numerical and categorical data.
+
+    Parameters:
+    df : pandas.DataFrame
+        The input DataFrame to be split.
+
+    Returns:
+    numerical_data : pandas.DataFrame
+        DataFrame containing only the numerical features.
+
+    categorical_data : pandas.DataFrame
+        DataFrame containing only the categorical features.
+
+    Example:
+    numerical_data, categorical_data = DC_numericalCategoricalSplit(my_dataframe)
+    """
     numerical_features=df.select_dtypes(exclude=['object']).columns
     categorical_features=df.select_dtypes(include=['object']).columns
     numerical_data=df[numerical_features]
@@ -117,6 +173,23 @@ def DC_numericalCategoricalSplit(df):
 
 
 def DC_nullFind(df):
+    """
+    Find and count missing (null) values in a DataFrame.
+
+    Parameters:
+    df : pandas.DataFrame
+        The input DataFrame to check for missing values.
+
+    Returns:
+    null_numerical : pandas.Series
+        Series containing counts of missing values for each numerical feature, sorted in descending order.
+
+    null_categorical : pandas.Series
+        Series containing counts of missing values for each categorical feature, sorted in descending order.
+
+    Example:
+    null_numerical, null_categorical = DC_nullFind(my_dataframe)
+    """
     null_numerical=pd.isnull(df).sum().sort_values(ascending=False)
     #null_numerical=null_numerical[null_numerical>=0]
     null_categorical=pd.isnull(df).sum().sort_values(ascending=False)
@@ -126,6 +199,23 @@ def DC_nullFind(df):
 
 
 def DC_removeNullRows(df,few_null_col_list):
+    """
+    Remove rows with missing (null) values in specified columns from a DataFrame.
+
+    Parameters:
+    df : pandas.DataFrame
+        The input DataFrame from which rows will be removed.
+        
+    few_null_col_list : list of str
+        A list of column names. Rows with missing values in any of these columns will be removed.
+
+    Returns:
+    df_cleaned : pandas.DataFrame
+        A new DataFrame with rows containing missing values in the specified columns removed.
+
+    Example:
+    cleaned_df = DC_removeNullRows(my_dataframe, ['column1', 'column2'])
+    """
     for col in few_null_col_list:
         df=df[df[col].notnull()]
     return(df)
@@ -328,9 +418,22 @@ def DC_AutoEDA(df,labels,target_variable_name,
 
 
 def dc_calculate_months_difference(x, startdate):
-    """Need to pass the datetime value and startdate as string in format 'YYYY-mm-dd'"""
-    """ This will calculate the date difference in months. Uses relativedelta which takes care of different dates
-        in different months.    
+    """
+    Calculate the difference in months between a given date and a start date.
+
+    Parameters:
+    x : datetime
+        The target date for which you want to calculate the difference.
+
+    startdate : str
+        The start date as a string in the format 'YYYY-mm-dd'.
+
+    Returns:
+    months_diff : int or None
+        The difference in months between the two dates. Returns None if there's an exception.
+
+    Example:
+    date_difference = dc_calculate_months_difference(datetime(2023, 9, 15), '2023-01-01')
     """
     from dateutil.relativedelta import relativedelta
     d = startdate
@@ -342,8 +445,17 @@ def dc_calculate_months_difference(x, startdate):
         return None  # Handle cases where the date conversion or calculation fails
 
 def dcvaluecountbarh(d):
-    """Pass on the variable from your dataframe for value count plot with horizontal display
+    """
+    Create a horizontal bar plot of value counts for a given variable from a dataframe.
+
+    Parameters:
+    d : pandas Series
+        The variable (column) from your dataframe for which you want to create a value count plot.
+
+    Example:
     dcvaluecountbarh(df["XYZ"])
+    
+    This function will generate a horizontal bar plot displaying the count of each unique value in the specified variable.
     """
     import matplotlib.pyplot as plt  
     ax = d.value_counts().plot(kind='barh')
@@ -358,15 +470,19 @@ def dcvaluecountbarh(d):
 # WoE function for discrete unordered variables
 def dc_woe_discrete(df, discrete_variabe_name, good_bad_variable_df):
     """
-    
+    Calculate Weight of Evidence (WoE) and Information Value (IV) for a discrete variable.
 
     Args:
-        df (_type_): _Entire Data Frame_
-        discrete_variabe_name (_type_): _Independent Variable name from Data Frame_
-        good_bad_variable_df (_type_): _Dependent Variable name from Data Frame_
+        df (DataFrame): The entire DataFrame containing both the discrete variable and the dependent variable.
+        discrete_variable_name (str): The name of the independent discrete variable in the DataFrame.
+        good_bad_variable_df (DataFrame): The dependent variable (good/bad) in the form of a DataFrame.
 
     Returns:
-        _type_: _Returns Dataframe with weight of evidence and Information value along with other details_
+        DataFrame: Returns a DataFrame with WoE, IV, and other details for the discrete variable.
+
+    Example:
+    df_woe_tab = dc_woe_discrete(df, 'DiscreteVariableName', df['GoodBadColumn'])
+    This function calculates the WoE and IV for a discrete variable and returns a DataFrame with the results.
     """
     df = pd.concat([df[discrete_variabe_name], good_bad_variable_df], axis = 1)
     df = pd.concat([df.groupby(df.columns.values[0], as_index = False)[df.columns.values[1]].count(),
